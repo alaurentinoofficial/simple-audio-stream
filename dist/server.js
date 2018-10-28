@@ -19,36 +19,32 @@ var express = require('express'),
 
 app.get('/audio/:music', function () {
     var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(req, res) {
-        var filePath, stat, stream;
+        var filePath;
         return _regenerator2.default.wrap(function _callee$(_context) {
             while (1) {
                 switch (_context.prev = _context.next) {
                     case 0:
                         filePath = './musics/' + req.params.music + '.mp3';
-                        _context.next = 3;
-                        return getStat(filePath);
 
-                    case 3:
-                        stat = _context.sent;
 
-                        // console.log(stat);
+                        getStat(filePath).then(function (stat) {
+                            console.log(stat);
+                            res.writeHead(200, {
+                                'Content-Type': 'audio/mpeg',
+                                'Content-Length': stat.size
+                            });
 
-                        res.writeHead(200, {
-                            'Content-Type': 'audio/mpeg',
-                            'Content-Length': stat.size
+                            var stream = fs.createReadStream(filePath);
+
+                            // stream.on('end', () => console.log(bold('>') + ' requested ' + bold(gray(req.params.music))));
+
+                            // streaming of the music
+                            stream.pipe(res);
+                        }).catch(function (err) {
+                            res.status(404).json({ code: 404, message: "Music not found" });
                         });
 
-                        stream = fs.createReadStream(filePath);
-
-
-                        stream.on('end', function () {
-                            return console.log((0, _colors.bold)('>') + ' requested ' + (0, _colors.bold)((0, _colors.gray)(req.params.music)));
-                        });
-
-                        // streaming of the music
-                        stream.pipe(res);
-
-                    case 8:
+                    case 2:
                     case 'end':
                         return _context.stop();
                 }
